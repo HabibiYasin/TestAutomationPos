@@ -98,6 +98,26 @@ HTML reports are generated at:
 reports/report.html
 ```
 
+## Supabase transaction cleanup
+
+Requires Node.js 22.15+ (or Node.js 24). Set `SUPABASE_URL` and
+`SUPABASE_SECRET_KEY` in the root `.env` file; legacy
+`SUPABASE_SERVICE_ROLE_KEY` is also supported. Keep `.env` out of Git.
+
+After each BDD run, the Cucumber coordinator deletes **all transactions for
+the current UTC date**, using `created_at >= 00:00 UTC` and `< 00:00 UTC` of
+the next day. The date is evaluated when cleanup starts. Use this suite only
+with the testing database. Related `transaction_items` are deleted by the
+database's existing `ON DELETE CASCADE` constraint.
+
+Cleanup logs the number deleted and checks that no matching transactions
+remain. A cleanup error fails the run. Forced process termination may prevent
+the hook from running. To run cleanup separately:
+
+```bash
+npm run cleanup:transactions
+```
+
 ## Test Coverage
 
 The suite currently covers:

@@ -1,6 +1,7 @@
-import { After, Before, setDefaultTimeout, World } from '@cucumber/cucumber';
+import { After, AfterAll, Before, HookTarget, setDefaultTimeout, World } from '@cucumber/cucumber';
 import { Browser, BrowserContext, Page, chromium } from '@playwright/test';
 import { PageManager } from '../../page-objects/pages/pageManager';
+import { cleanupTodayTransactions } from './transactionCleanup';
 
 setDefaultTimeout(30_000);
 
@@ -28,4 +29,8 @@ Before(async function (this: World) {
 
 After(async function (this: World) {
     await this.browser?.close();
+});
+
+AfterAll({ name: 'Delete today transactions (UTC)', on: HookTarget.COORDINATOR, timeout: 70_000 }, async function () {
+    await cleanupTodayTransactions();
 });

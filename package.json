@@ -6,6 +6,7 @@
     "typescript": "^5.9.3"
   },
   "scripts": {
-    "test:bdd": "cucumber-js --config cucumber.json"
+    "test:bdd": "cucumber-js --config cucumber.json",
+    "cleanup:transactions": "ts-node tests/support/transactionCleanup.ts"
   }
 }
