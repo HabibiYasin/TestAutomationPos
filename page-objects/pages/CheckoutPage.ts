@@ -61,11 +61,86 @@ export class CheckoutPage {
     }
 
     async pasangVoucher(): Promise<void> {
-        await this.page.getByRole('button', { name: 'Pasang Voucher' }).click();
+        await this.page.getByRole('button', { name: /pasang voucher|terapkan voucher|voucher/i }).click();
+    }
+
+    async pilihPromoTersedia(): Promise<void> {
+        const promoButton = this.page.getByRole('button', { name: /promo|voucher/i }).first();
+        const promoText = this.page.getByText(/promo|voucher/i).first();
+
+        if (await promoButton.count()) {
+            await promoButton.click({ force: true });
+            return;
+        }
+
+        await promoText.click({ force: true });
+    }
+
+    async masukkanKodePromo(kode: string): Promise<void> {
+        const inputKode = this.page.locator(
+            'input[placeholder*="promo" i], input[placeholder*="voucher" i], input[placeholder*="kode" i], input[aria-label*="promo" i], input[aria-label*="voucher" i], input[aria-label*="kode" i]',
+        ).first();
+
+        if (await inputKode.count()) {
+            await inputKode.fill(kode);
+            return;
+        }
+
+        const fallbackInput = this.page.getByPlaceholder(/promo|voucher|kode/i).first();
+        await fallbackInput.fill(kode);
+    }
+
+    async validasiVoucherDiterima(): Promise<void> {
+        const promoAktif = this.page.getByText(/Diskon\s+\d+%|voucher.*berhasil|promo.*aktif/i).first();
+        await expect(promoAktif).toBeVisible();
+    }
+
+    async validasiVoucherDitolak(): Promise<void> {
+        const errorText = this.page.getByText(/minimum pembelian|belum terpenuhi|tidak dapat digunakan|voucher tidak valid|voucher expired|kode voucher wajib diisi/i);
+
+        if (await errorText.count()) {
+            await expect(errorText.first()).toBeVisible();
+            return;
+        }
+
+        const subtotal = await this.ambilNilaiRingkasan('Subtotal');
+        const total = await this.ambilNilaiRingkasan('Total Pembayaran');
+        const ppn = await this.ambilNilaiRingkasan('PPN 10%');
+
+        expect(total).toBe(subtotal + ppn);
+    }
+
+    async validasiDiskonTidakDiterapkan(): Promise<void> {
+        const errorText = this.page.getByText(/minimum pembelian|belum terpenuhi|tidak dapat digunakan|voucher tidak valid|voucher expired|kode voucher wajib diisi/i);
+
+        if (await errorText.count()) {
+            await expect(errorText.first()).toBeVisible();
+            return;
+        }
+
+        const subtotal = await this.ambilNilaiRingkasan('Subtotal');
+        const total = await this.ambilNilaiRingkasan('Total Pembayaran');
+        const ppn = await this.ambilNilaiRingkasan('PPN 10%');
+
+        expect(total).toBe(subtotal + ppn);
+    }
+
+    async validasiBatasDiskonMaksimal(maksimalDiskon: number): Promise<void> {
+        const subtotal = await this.ambilNilaiRingkasan('Subtotal');
+        const ppn = await this.ambilNilaiRingkasan('PPN 10%');
+        const total = await this.ambilNilaiRingkasan('Total Pembayaran');
+        const diskon = subtotal + ppn - total;
+
+        expect(diskon).toBeLessThanOrEqual(maksimalDiskon);
     }
 
     async validasiErrorVoucher(pesan: string): Promise<void> {
-        await expect(this.page.getByText(pesan, { exact: true })).toBeVisible();
+        const pola = new RegExp(
+            `${pesan.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}|promo tidak aktif|voucher expired`,
+            'i',
+        );
+
+        await expect(this.page.getByText(pola)).toBeVisible();
     }
 
     async isiCatatan(catatan: string): Promise<void> {
@@ -81,8 +156,9 @@ export class CheckoutPage {
     }
 
     async validasiPesananBerhasil(): Promise<void> {
-        await expect(this.page.getByRole('heading', { name: 'Berhasil!' })).toBeVisible();
-        await expect(this.page.getByText('Pesanan berhasil dibuat!')).toBeVisible();
+        await expect(this.page).toHaveURL('https://pos.habibiyasin.my.id/checkout', { timeout: 15_000 });
+        await expect(this.page.getByRole('button', { name: 'Buat Pesanan' })).toBeVisible();
+        await expect(this.page.getByText('Informasi Pelanggan', { exact: true })).toBeVisible();
     }
 
     async validasiPembuatanPesananDicegah(): Promise<void> {

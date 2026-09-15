@@ -2,11 +2,16 @@
   "devDependencies": {
     "@cucumber/cucumber": "^13.2.1",
     "@playwright/test": "^1.55.0",
+    "allure-commandline": "^2.43.0",
+    "allure-cucumberjs": "^3.12.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "scripts": {
     "test:bdd": "cucumber-js --config cucumber.json",
+    "test:bdd:allure": "cucumber-js --config cucumber.json",
+    "allure:generate": "allure generate ./allure-results -o ./allure-report --clean",
+    "allure:open": "allure open ./allure-report",
     "cleanup:transactions": "ts-node tests/support/transactionCleanup.ts"
   }
 }

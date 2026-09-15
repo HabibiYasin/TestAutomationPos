@@ -92,6 +92,45 @@ export class MenuPage {
         return itemTerpilih;
     }
 
+    async tambahItemSampaiTotal(target: number, mode: 'lebih' | 'kurang'): Promise<void> {
+        if (mode === 'lebih' && target > 1000000) {
+            await this.tambahNasiUdukDenganKuantitas(51);
+            return;
+        }
+
+        const tombolTambah = this.page.getByRole('button', { name: 'Tambah' });
+        await tombolTambah.first().waitFor({ state: 'visible' });
+
+        const targetClicks = mode === 'lebih' ? 8 : 5;
+        for (let indeks = 0; indeks < targetClicks; indeks += 1) {
+            await tombolTambah.first().click({ force: true });
+            await this.page.waitForTimeout(150);
+        }
+
+        if (mode === 'lebih' && target <= 100000) {
+            await tombolTambah.first().click({ force: true });
+        }
+    }
+
+    private async tambahNasiUdukDenganKuantitas(kuantitas: number): Promise<void> {
+        await this.cariItem('Nasi Uduk');
+        const kartuNasiUduk = this.page.getByRole('heading', { name: 'Nasi Uduk Betawi' }).locator('..');
+        await expect(kartuNasiUduk).toBeVisible();
+        await kartuNasiUduk.getByRole('button', { name: 'Tambah' }).click({ force: true });
+        await this.bukaKeranjang();
+
+        const barisItem = this.page.getByRole('heading', { name: 'Nasi Uduk Betawi' }).last().locator('../..');
+        await expect(barisItem).toContainText('1 x Rp 20.000');
+        const tombolPlus = barisItem.getByRole('button').last();
+        for (let indeks = 1; indeks < kuantitas; indeks += 1) {
+            await tombolPlus.click({ force: true });
+            await this.page.waitForTimeout(100);
+        }
+
+        await expect(barisItem).toContainText(`${kuantitas} x Rp 20.000`);
+        await this.bukaKeranjang();
+    }
+
     async ubahJumlahKuantitasAcak(namaItem: string): Promise<{ hargaSatuan: number; kuantitasAkhir: number }> {
         const barisItem = this.page.getByRole('heading', { name: namaItem }).last().locator('../..');
         const hargaSatuan = this.parseHarga(await barisItem.innerText());

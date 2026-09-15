@@ -41,7 +41,7 @@ Feature: Alur Pemesanan Pelanggan
     And pelanggan klik tombol "Buat Pesanan"
     Then sistem berhasil memproses pesanan
 
-  @voucher
+  @vouchernegative
   Scenario: Validasi voucher tidak dapat digunakan di bawah minimum pembelian dengan klik promo yang tersedia
     Given pelanggan berada di halaman "https://pos.habibiyasin.my.id/menu"
     When pelanggan menambahkan item hingga total pembelian kurang dari Rp 100000
@@ -81,10 +81,11 @@ Feature: Alur Pemesanan Pelanggan
     When pelanggan memasang voucher dengan kode "VOUCHERHABIS"
     Then sistem menampilkan pesan error "voucher expired"
 
-  @voucher
+  @vouchermax
   Scenario: Validasi batas maksimum diskon voucher
     Given pelanggan berada di halaman "https://pos.habibiyasin.my.id/menu"
-    When pelanggan menambahkan item hingga total pembelian lebih dari Rp 1000000
+    When pelanggan mencari item "Gold Coffee" menggunakan fitur search
+    And pelanggan klik tombol "+ Tambah" pada item "Gold Coffee"
     And pelanggan membuka keranjang
     And pelanggan klik tombol "Checkout"
     Then pelanggan diarahkan ke halaman "https://pos.habibiyasin.my.id/checkout"

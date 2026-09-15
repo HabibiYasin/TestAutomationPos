@@ -3,6 +3,6 @@
     "paths": ["tests/features/**/*.feature"],
     "requireModule": ["ts-node/register"],
     "require": ["tests/steps/**/*.ts", "tests/support/**/*.ts"],
-    "format": ["progress", "html:reports/report.html"]
+    "format": ["progress", "allure-cucumberjs/reporter", "html:reports/report.html"]
   }
 }

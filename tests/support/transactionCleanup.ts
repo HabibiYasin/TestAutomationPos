@@ -17,7 +17,8 @@ export async function cleanupTodayTransactions() {
     const projectUrl = process.env.SUPABASE_URL;
     const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!projectUrl || !key) {
-        throw new Error('Cleanup requires SUPABASE_URL and SUPABASE_SECRET_KEY (or SUPABASE_SERVICE_ROLE_KEY).');
+        console.log('[cleanup] Skipped: SUPABASE_URL and SUPABASE_SECRET_KEY (or SUPABASE_SERVICE_ROLE_KEY) are not configured.');
+        return;
     }
 
     const { start, end } = utcDayRange();

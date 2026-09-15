@@ -45,6 +45,10 @@ When('pelanggan mencari item menggunakan fitur search', async function () {
     await this.pm.onMenuPage().cariItem('Ice Cappucino');
 });
 
+When('pelanggan mencari item {string} menggunakan fitur search', async function (namaItem: string) {
+    await this.pm.onMenuPage().cariItem(namaItem);
+});
+
 When('pelanggan memilih filter kategori {string}', async function (kategori: string) {
     await this.pm.onMenuPage().pilihKategori(kategori);
 });
@@ -83,6 +87,53 @@ When('pelanggan mengisi "Nomor Meja" dengan {string}', async function (nomorMeja
 
 When('pelanggan memasang voucher tanpa kode', async function () {
     await this.pm.onCheckoutPage().pasangVoucher();
+});
+
+When('pelanggan menambahkan item hingga total pembelian lebih dari Rp {float}', async function (jumlah: number) {
+    await this.pm.onMenuPage().tambahItemSampaiTotal(jumlah, 'lebih');
+});
+
+When('pelanggan memasukkan voucher yang valid', async function () {
+    await this.pm.onCheckoutPage().masukkanKodePromo('HEMAT30%');
+    await this.pm.onCheckoutPage().pasangVoucher();
+});
+
+Then('sistem menerima voucher dan menerapkan diskon', async function () {
+    await this.pm.onCheckoutPage().validasiVoucherDiterima();
+});
+
+When('pelanggan menambahkan item hingga total pembelian kurang dari Rp {float}', async function (jumlah: number) {
+    await this.pm.onMenuPage().tambahItemSampaiTotal(jumlah, 'kurang');
+});
+
+When('pelanggan memilih promo yang tersedia', async function () {
+    await this.pm.onCheckoutPage().pilihPromoTersedia();
+});
+
+Then('sistem menolak voucher karena minimum pembelian belum terpenuhi', async function () {
+    await this.pm.onCheckoutPage().validasiVoucherDitolak();
+});
+
+Then('diskon voucher tidak diterapkan', async function () {
+    await this.pm.onCheckoutPage().validasiDiskonTidakDiterapkan();
+});
+
+When('pelanggan memasukkan kode promo manual yang valid', async function () {
+    await this.pm.onCheckoutPage().masukkanKodePromo('HEMAT30%');
+    await this.pm.onCheckoutPage().pasangVoucher();
+});
+
+When('pelanggan memasang voucher dengan kode {string}', async function (kode: string) {
+    await this.pm.onCheckoutPage().masukkanKodePromo(kode);
+    await this.pm.onCheckoutPage().pasangVoucher();
+});
+
+Then('sistem menampilkan pesan error {string}', async function (pesan: string) {
+    await this.pm.onCheckoutPage().validasiErrorVoucher(pesan);
+});
+
+Then('diskon voucher yang diterapkan tidak lebih dari Rp {float}', async function (maksimalDiskon: number) {
+    await this.pm.onCheckoutPage().validasiBatasDiskonMaksimal(maksimalDiskon);
 });
 
 Then('sistem menampilkan pesan error voucher {string}', async function (pesan: string) {
