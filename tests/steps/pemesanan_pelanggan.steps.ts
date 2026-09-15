@@ -1,6 +1,23 @@
 import { Given, Then, When } from '@cucumber/cucumber';
 import { PageManager } from '../../page-objects/pages/pageManager';
 
+Given('pengguna berada di halaman login', async function () {
+    this.pm = new PageManager(this.page);
+    await this.pm.onLoginPage().buka();
+});
+
+When('pengguna login dengan email {string} dan password {string}', async function (email: string, password: string) {
+    await this.pm.onLoginPage().login(email, password);
+});
+
+Then('pengguna diarahkan ke dashboard {string}', async function (url: string) {
+    await this.pm.onLoginPage().validasiPengalihan(url);
+});
+
+Then('sistem menolak login dan menampilkan pesan kredensial salah', async function () {
+    await this.pm.onLoginPage().validasiLoginDitolak();
+});
+
 Given('pelanggan memiliki keranjang yang kosong', async function () {
     this.pm = new PageManager(this.page);
     await this.pm.onMenuPage().pastikanKeranjangKosong();

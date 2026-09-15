@@ -24,6 +24,52 @@ Feature: Alur Pemesanan Pelanggan
     And pelanggan klik tombol "Buat Pesanan"
     Then sistem berhasil memproses pesanan
 
+  @voucher
+  Scenario: Validasi voucher valid untuk pesanan di atas minimum pembelian
+    Given pelanggan berada di halaman "https://pos.habibiyasin.my.id/menu"
+    When pelanggan menambahkan item hingga total pembelian lebih dari Rp 100000
+    And pelanggan membuka keranjang
+    And pelanggan klik tombol "Checkout"
+    Then pelanggan diarahkan ke halaman "https://pos.habibiyasin.my.id/checkout"
+    When pelanggan mengisi "Nama Lengkap" dengan "Habibi Yasin"
+    And pelanggan mengisi "Nomor Telepon" dengan "081234567890"
+    And pelanggan memilih tipe pesanan "Makan di tempat"
+    And pelanggan mengisi "Nomor Meja" dengan "5"
+    And pelanggan memasukkan voucher yang valid
+    Then sistem menerima voucher dan menerapkan diskon
+    When pelanggan memastikan metode pembayaran "Tunai" terpilih
+    And pelanggan klik tombol "Buat Pesanan"
+    Then sistem berhasil memproses pesanan
+
+  @voucher
+  Scenario: Validasi voucher tidak dapat digunakan di bawah minimum pembelian
+    Given pelanggan berada di halaman "https://pos.habibiyasin.my.id/menu"
+    When pelanggan menambahkan item hingga total pembelian kurang dari Rp 100000
+    And pelanggan membuka keranjang
+    And pelanggan klik tombol "Checkout"
+    Then pelanggan diarahkan ke halaman "https://pos.habibiyasin.my.id/checkout"
+    When pelanggan memasukkan voucher yang valid
+    Then sistem menolak voucher karena minimum pembelian belum terpenuhi
+    And diskon voucher tidak diterapkan
+
+  @voucher
+  Scenario: Validasi batas maksimum diskon voucher
+    Given pelanggan berada di halaman "https://pos.habibiyasin.my.id/menu"
+    When pelanggan menambahkan item hingga total pembelian lebih dari Rp 1000000
+    And pelanggan membuka keranjang
+    And pelanggan klik tombol "Checkout"
+    Then pelanggan diarahkan ke halaman "https://pos.habibiyasin.my.id/checkout"
+    When pelanggan memasukkan voucher yang valid
+    Then sistem menerima voucher dan menerapkan diskon
+    And diskon voucher yang diterapkan tidak lebih dari Rp 300000
+    When pelanggan mengisi "Nama Lengkap" dengan "Habibi Yasin"
+    And pelanggan mengisi "Nomor Telepon" dengan "081234567890"
+    And pelanggan memilih tipe pesanan "Makan di tempat"
+    And pelanggan mengisi "Nomor Meja" dengan "5"
+    And pelanggan memastikan metode pembayaran "Tunai" terpilih
+    And pelanggan klik tombol "Buat Pesanan"
+    Then sistem berhasil memproses pesanan
+
   Scenario: End-to-End Pemesanan Berhasil (Take Away - Tunai)
     Given pelanggan berada di halaman checkout dengan item di dalam keranjang
     When pelanggan mengisi "Nama Lengkap" dan "Nomor Telepon" dengan data valid
@@ -85,7 +131,7 @@ Feature: Alur Pemesanan Pelanggan
       | 2         | 3           |
       | 3         | 2           |
 
-  @multi-item
+  @multi-item2
   Scenario Outline: Validasi ringkasan pembayaran multi-item di checkout - Percobaan <percobaan>
     Given pelanggan berada di halaman menu
     When pelanggan menambahkan <jumlah_item> item berbeda secara acak ke keranjang
