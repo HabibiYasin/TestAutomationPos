@@ -81,6 +81,14 @@ When('pelanggan mengisi "Nomor Meja" dengan {string}', async function (nomorMeja
     await this.pm.onCheckoutPage().isiNomorMeja(nomorMeja);
 });
 
+When('pelanggan memasang voucher tanpa kode', async function () {
+    await this.pm.onCheckoutPage().pasangVoucher();
+});
+
+Then('sistem menampilkan pesan error voucher {string}', async function (pesan: string) {
+    await this.pm.onCheckoutPage().validasiErrorVoucher(pesan);
+});
+
 When('pelanggan menambahkan teks pada {string}', async function (_field: string) {
     await this.pm.onCheckoutPage().isiCatatan('Catatan pesanan pelanggan');
 });

@@ -42,15 +42,44 @@ Feature: Alur Pemesanan Pelanggan
     Then sistem berhasil memproses pesanan
 
   @voucher
-  Scenario: Validasi voucher tidak dapat digunakan di bawah minimum pembelian
+  Scenario: Validasi voucher tidak dapat digunakan di bawah minimum pembelian dengan klik promo yang tersedia
     Given pelanggan berada di halaman "https://pos.habibiyasin.my.id/menu"
     When pelanggan menambahkan item hingga total pembelian kurang dari Rp 100000
     And pelanggan membuka keranjang
     And pelanggan klik tombol "Checkout"
     Then pelanggan diarahkan ke halaman "https://pos.habibiyasin.my.id/checkout"
-    When pelanggan memasukkan voucher yang valid
+    When pelanggan memilih promo yang tersedia
     Then sistem menolak voucher karena minimum pembelian belum terpenuhi
     And diskon voucher tidak diterapkan
+
+  @voucher
+  Scenario: Validasi voucher tidak dapat digunakan di bawah minimum pembelian dengan kode promo manual
+    Given pelanggan berada di halaman "https://pos.habibiyasin.my.id/menu"
+    When pelanggan menambahkan item hingga total pembelian kurang dari Rp 100000
+    And pelanggan membuka keranjang
+    And pelanggan klik tombol "Checkout"
+    Then pelanggan diarahkan ke halaman "https://pos.habibiyasin.my.id/checkout"
+    When pelanggan memasukkan kode promo manual yang valid
+    Then sistem menolak voucher karena minimum pembelian belum terpenuhi
+    And diskon voucher tidak diterapkan
+
+  @voucher @test
+  Scenario: Validasi voucher wajib diisi
+    Given pelanggan berada di halaman checkout dengan item di dalam keranjang
+    When pelanggan memasang voucher tanpa kode
+    Then sistem menampilkan pesan error voucher "Kode voucher wajib diisi"
+
+  @voucher
+  Scenario: Validasi voucher expired
+    Given pelanggan berada di halaman checkout dengan item di dalam keranjang
+    When pelanggan memasang voucher dengan kode "expired"
+    Then sistem menampilkan pesan error "voucher expired"
+
+  @voucher
+  Scenario: Validasi voucher yang telah habis penggunaannya
+    Given pelanggan berada di halaman checkout dengan item di dalam keranjang
+    When pelanggan memasang voucher dengan kode "VOUCHERHABIS"
+    Then sistem menampilkan pesan error "voucher expired"
 
   @voucher
   Scenario: Validasi batas maksimum diskon voucher

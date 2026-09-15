@@ -60,6 +60,14 @@ export class CheckoutPage {
         await this.isiNomorMeja('');
     }
 
+    async pasangVoucher(): Promise<void> {
+        await this.page.getByRole('button', { name: 'Pasang Voucher' }).click();
+    }
+
+    async validasiErrorVoucher(pesan: string): Promise<void> {
+        await expect(this.page.getByText(pesan, { exact: true })).toBeVisible();
+    }
+
     async isiCatatan(catatan: string): Promise<void> {
         await this.page.getByPlaceholder('Tambahkan catatan untuk pesanan Anda...').fill(catatan);
     }
