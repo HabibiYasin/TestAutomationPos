@@ -176,3 +176,24 @@ Feature: Alur Pemesanan Pelanggan
       | 1         | 2           |
       | 2         | 3           |
       | 3         | 2           |
+
+  @items @negative
+  Scenario: validasi stock habis untuk item tertentu
+    Given pelanggan berada di halaman menu  
+    When pelanggan mencari "ice cappucino" menggunakan fitur search
+    Then sistem menampilkan item "Ice Cappucino" dengan status "Habis" dan tombol "Tambah" dinonaktifkan
+
+  @items
+  Scenario Outline: Pelanggan tidak dapat menambahkan item melebihi stok - Percobaan <percobaan>
+      Given pelanggan berada di halaman menu
+      When pelanggan mencari item "<item>" menggunakan fitur search
+      And pelanggan klik tombol "+ Tambah" pada item "<item>"
+      And pelanggan membuka keranjang
+      And pelanggan menambahkan item "<item>" sampai kuantitas <stok> melalui popup keranjang
+      Then kuantitas item "<item>" tidak dapat melebihi stok <stok>
+
+      Examples:
+        | percobaan | item          | stok |
+        | 1         | Es Teh Manis  | 3    |
+        | 2         | Jus Alpukat   | 4    |
+        | 3         | Es Teler      | 4    |

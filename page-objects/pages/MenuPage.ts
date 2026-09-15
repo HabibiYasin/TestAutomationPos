@@ -11,6 +11,35 @@ export class MenuPage {
         await this.page.getByPlaceholder('Cari menu...').fill(namaItem);
     }
 
+    async validasiItemHabis(namaItem: string, status: string, namaTombol: string): Promise<void> {
+        const kartuItem = this.page.getByRole('heading', { name: namaItem, exact: true }).locator('..');
+        await expect(kartuItem).toBeVisible();
+        await expect(kartuItem).toContainText(status);
+        await expect(kartuItem.getByRole('button', { name: namaTombol, exact: true })).toBeDisabled();
+    }
+
+    async tambahItemSampaiStokDiPopup(namaItem: string, stok: number): Promise<void> {
+        const popupKeranjang = this.page.getByRole('heading', { name: 'Keranjang', exact: true }).locator('../..');
+        const barisItem = popupKeranjang.getByRole('heading', { name: namaItem, exact: true }).last().locator('../..');
+        const tombolTambah = barisItem.getByRole('button').last();
+
+        for (let kuantitas = 1; kuantitas < stok; kuantitas += 1) {
+            await tombolTambah.click({ force: true });
+            await this.page.waitForTimeout(100);
+        }
+
+        await expect(barisItem.getByText(String(stok), { exact: true })).toBeVisible();
+        await tombolTambah.click({ force: true });
+    }
+
+    async validasiKuantitasTidakMelebihiStok(namaItem: string, stok: number): Promise<void> {
+        const popupKeranjang = this.page.getByRole('heading', { name: 'Keranjang', exact: true }).locator('../..');
+        const barisItem = popupKeranjang.getByRole('heading', { name: namaItem, exact: true }).last().locator('../..');
+
+        await expect(barisItem.getByText(String(stok), { exact: true })).toBeVisible();
+        await expect(barisItem.getByRole('button').last()).toBeDisabled();
+    }
+
     async pilihKategori(namaKategori: string): Promise<void> {
         await this.page.getByRole('combobox').selectOption({ label: namaKategori });
     }

@@ -49,8 +49,31 @@ When('pelanggan mencari item {string} menggunakan fitur search', async function 
     await this.pm.onMenuPage().cariItem(namaItem);
 });
 
+When('pelanggan mencari {string} menggunakan fitur search', async function (namaItem: string) {
+    await this.pm.onMenuPage().cariItem(namaItem);
+});
+
 When('pelanggan memilih filter kategori {string}', async function (kategori: string) {
     await this.pm.onMenuPage().pilihKategori(kategori);
+});
+
+Then('sistem menampilkan item {string} dengan status {string} dan tombol {string} dinonaktifkan', async function (
+    namaItem: string,
+    status: string,
+    namaTombol: string,
+) {
+    await this.pm.onMenuPage().validasiItemHabis(namaItem, status, namaTombol);
+});
+
+When('pelanggan menambahkan item {string} sampai kuantitas {int} melalui popup keranjang', async function (
+    namaItem: string,
+    stok: number,
+) {
+    await this.pm.onMenuPage().tambahItemSampaiStokDiPopup(namaItem, stok);
+});
+
+Then('kuantitas item {string} tidak dapat melebihi stok {int}', async function (namaItem: string, stok: number) {
+    await this.pm.onMenuPage().validasiKuantitasTidakMelebihiStok(namaItem, stok);
 });
 
 When('pelanggan klik tombol "+ Tambah" pada item {string}', async function (namaItem: string) {
